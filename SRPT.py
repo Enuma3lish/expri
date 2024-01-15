@@ -44,6 +44,4 @@ def Srpt(jobs):
 # Example usage
     execution_order, completion_times = preemptive_srpt_scheduler(jobs)
     avg_flow_time_value = average_flow_time(completion_times)
-    print("Execution Order:", execution_order)
-    print("Average Flow Time:", avg_flow_time_value)
     return avg_flow_time_value

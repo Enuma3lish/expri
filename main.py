@@ -3,7 +3,7 @@ import Job_init
 import matplotlib.pyplot as plt
 import Write_csv
 import execute
-num_jobs = 100
+num_jobs = 100000
 results =[]
 result = []
 def main():

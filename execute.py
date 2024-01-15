@@ -4,8 +4,8 @@ import MLFQ,RR,SJF,SRPT,SETF
 #Arrival_rate=[0.05,0.04545,0.0416,0.0385,0.036,0.033,0.3123,0.029,0.028,0.026,0.025]
 def process_scheduler(func, data):
     return func(data)
-result =[]
 def execute(Arrival_rate,bp_parameter):
+    result =[]
     for i in bp_parameter:
         job_list = Read_csv.Read_csv(str(i["L"])+".csv")
         rr_list = job_list.copy()
