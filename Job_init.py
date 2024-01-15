@@ -24,4 +24,5 @@ def Save_file(num_jobs):
         for b in tqdm.tqdm(bp_parameter):
             #put bp_paremeter in avg_job_flow because each turn
             job_list = Job_init.job_init(num_jobs,a,b["L"],b["H"])
-            Write_csv.write("/home/melowu/Work/expri/100000_Raw.csv",job_list)
+            bl = b["L"]
+            Write_csv.Write_raw(f"/home/melowu/Work/expri/{bl}.csv",job_list)

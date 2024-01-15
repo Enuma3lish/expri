@@ -1,43 +1,49 @@
 import heapq
 
-def srpt_scheduler(jobs):
-    min_heap = []
+def preemptive_srpt_scheduler(jobs):
     time = 0
-    index = 0
     result = []
-    
-    while index < len(jobs) or min_heap:
-        while index < len(jobs) and jobs[index][0] <= time:
-            arrival_time, remaining_time = jobs[index]
-            heapq.heappush(min_heap, (remaining_time, arrival_time, index))
-            index += 1
-        
-        if min_heap:
-            remaining_time, arrival_time, job_index = heapq.heappop(min_heap)
+    job_heap = []
+    completion_times = {}  # Initialize a dictionary to store completion times
+
+    while jobs or job_heap:
+        # Add arrived jobs to the heap
+        while jobs and jobs[0][0] <= time:
+            arrival_time, job_size = jobs.pop(0)
+            heapq.heappush(job_heap, (job_size, arrival_time, len(result)))
+
+        if job_heap:
+            # Get the job with the shortest remaining job size
+            job_size, arrival_time, job_index = heapq.heappop(job_heap)
             result.append(job_index)
-            remaining_time -= 1
-            
-            if remaining_time > 0:
-                heapq.heappush(min_heap, (remaining_time, arrival_time, job_index))
-            
+
+            # Calculate flow time for the selected job
+            flow_time = time + 1 - arrival_time  # Adding 1 to account for the current time step
+            completion_times[job_index] = flow_time  # Store completion time in the dictionary
+
+            # Decrement remaining job size for the selected job
+            job_size -= 1
+
+            if job_size > 0:
+                # If the job still has remaining job size, put it back into the heap
+                heapq.heappush(job_heap, (job_size, arrival_time, job_index))
+
+            # Increment time
             time += 1
         else:
+            # No available jobs, increment time
             time += 1
-    
-    return result
 
-def average_flow_time(jobs, execution_order):
-    total_flow_time = 0
-    completion_time = [0] * len(jobs)
-    
-    for index in execution_order:
-        arrival_time, remaining_time = jobs[index]
-        total_flow_time += (completion_time[index] - arrival_time)
-        completion_time[index] += remaining_time
-    
-    return total_flow_time / len(jobs)
+    return result, completion_times
+
+# Function to calculate the average flow time
+def average_flow_time(completion_times):
+    return sum(completion_times.values()) / len(completion_times)
+
 def Srpt(jobs):
 # Example usage
-    execution_order = srpt_scheduler(jobs)
-    avg_flow_time = average_flow_time(jobs, execution_order)
-    return avg_flow_time
+    execution_order, completion_times = preemptive_srpt_scheduler(jobs)
+    avg_flow_time_value = average_flow_time(completion_times)
+    print("Execution Order:", execution_order)
+    print("Average Flow Time:", avg_flow_time_value)
+    return avg_flow_time_value
