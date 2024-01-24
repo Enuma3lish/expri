@@ -1,43 +1,50 @@
-import queue
-num_queues = 3
-queues = [queue.Queue() for _ in range(num_queues)]
+import numpy as np
+def Mlfq(jobs):
+  # Define the number of queues and quantum sizes
+  num_queues = 100
+  quantum_sizes = [pow(2,i)*max(1,2-np.random.exponential(scale=12, size=1)) for i in range(num_queues)]
 
-# Simulate MLFQ scheduling and calculate flow time
+  # Initialize variables
+  time = 0
+  total_flow_time = 0
+  queues = [[] for _ in range(num_queues)]
 
-# generate_job_size()
-def Mlfq(job_list):
-    floor_size = 2
-    current_time = 0
-    total_flow_time = 0
-    job_count = 0
-    job_flow=[]
-    while job_list or any(not q.empty() for q in queues):
-    # Move jobs from job_list to appropriate queue based on arrival time
-        while job_list and job_list[0][0] <= current_time:
-            job = job_list.pop(0)
-            if job[1] <= floor_size:
-                queues[0].put(job)
-            elif job[1] <= 3*floor_size:
-                queues[1].put(job)
-            else:
-                queues[2].put(job)
+  # Sort jobs by arrival time
+  jobs.sort(key=lambda job: job[0])
 
-    # Process queues with different priorities
-        for i, q in enumerate(queues):
-            if not q.empty():
-                job = q.get()
-                #print(f"Processing job with priority {i+1}: Arrival Time={job['arrival_time']}, Job Size={job['job_size']}")
-                flow_time = current_time - job[0]
-                job_flow.append(flow_time)
-                total_flow_time += flow_time
-                job_count += 1
-                current_time += job[1]
-                break  # Move to the next queue after processing one job
-        current_time += 1  # Time quantum or context switch time
+  # Loop through jobs
+  for arrival_time, job_size in jobs:
+    # Wait until the job can be processed
+    time = max(time, arrival_time)
 
-# Calculate average flow time
-    average_flow_time = total_flow_time / job_count if job_count > 0 else 0
-# Print results
-    #print(f"Total Flow Time: {total_flow_time}")
-    #print(f"MLFQ Average Flow Time: {average_flow_time}")
-    return average_flow_time
+    # Find the appropriate queue for the job
+    queue_index = 0
+    while queue_index < num_queues - 1 and job_size > quantum_sizes[queue_index]:
+      queue_index += 1
+
+    # Add the job to the queue
+    queues[queue_index].append((arrival_time, job_size, 0))
+
+    # Process jobs in each queue
+    for i in range(num_queues - 1, -1, -1):
+      while queues[i]:
+        job_arrival_time, job_size, remaining_time = queues[i].pop(0)
+
+        # Update remaining time and flow time
+        remaining_time = min(remaining_time + 1, quantum_sizes[i])
+        flow_time = time - job_arrival_time
+
+        # Check if job is finished
+        if remaining_time == job_size:
+          total_flow_time += flow_time
+        else:
+          queues[i].append((job_arrival_time, job_size, remaining_time))
+          break
+
+    # Update time
+    time += 1
+
+  # Calculate average flow time
+  avg_flow_time = total_flow_time / len(jobs)
+
+  return avg_flow_time

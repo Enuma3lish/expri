@@ -50,5 +50,5 @@ def Rr(joblist=[]):
     completed_jobs = round_robin_scheduling(job_list)
     avg_flow_time,job_flow = calculate_flow_time(completed_jobs)
     #print("Flow times for completed jobs:", [job['finish_time'] - job['arrival_time'] for job in completed_jobs])
-    #print("RR Average flow time:", avg_flow_time)
+    print("RR Average flow time:", avg_flow_time)
     return avg_flow_time

@@ -23,5 +23,5 @@ def Sjf(jobs):
     # Calculate flow (turnaround) times
     flow_times = [start_time[i] + job_sequence[i][1] - job_sequence[i][0] for i in range(len(job_sequence))]
     average_flow_time = sum(flow_times) / len(flow_times)
-
+    print(average_flow_time)
     return average_flow_time
